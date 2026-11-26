@@ -51,7 +51,34 @@ Eso significa **13 mecánicas distintas** en una sola lección.
 Conclusión: los datos sirven para **planificar** (cuántos ejercicios, de qué tipo),
 pero la respuesta correcta hay que leerla de la pantalla.
 
-## Estrategia que funciona
+## Tipos: detalle del DOM
+
+### Emparejar (`D`, `W1b`) — resuelto
+
+- Ficha pendiente: `div.d-sol` sin la clase `d-sol-done`.
+- Destino: `div.d-box` cuyo texto es la traducción.
+- Confirmación: el destino pasa a `d-box-correct`.
+- Secuencia: clic real en la ficha, clic real en el destino.
+
+### Ordenar oración («Translate this sentence») — en análise
+
+Estructura observada:
+
+| Parte | Selector |
+|---|---|
+| Frase original | `.words` (p. ej. «The grass is green .») |
+| Respuesta en construcción | `.selected-row .tokens` |
+| Banco de fichas | `.tokens .token-container > .token` |
+
+Hallazgo incómodo: el clic real sobre `.token-container` **no incorpora la ficha**
+(el DOM no cambia y `Check` no avanza). Hipótesis: la ficha escucha
+`pointerdown`/`pointerup` con delegación, o exige clic sobre `.token` interior
+con coordenadas exactas.
+
+Siguiente paso para quien lo retome: probar `page.mouse.click(x, y)` sobre el
+centro de `.token`, o `dispatchEvent(new PointerEvent('pointerdown'))` seguido de
+`pointerup` sobre el mismo nodo.
+
 
 1. **Leer el estado del DOM**, no adivinarlo: `div.d-sol` sin `d-sol-done` es la ficha
    pendiente; `div.d-box` con texto es el destino.
