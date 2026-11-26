@@ -51,7 +51,40 @@ Eso significa **13 mecánicas distintas** en una sola lección.
 Conclusión: los datos sirven para **planificar** (cuántos ejercicios, de qué tipo),
 pero la respuesta correcta hay que leerla de la pantalla.
 
-## Tipos: detalle del DOM
+## El hallazgo que lo explica todo: la app dibuja en un canvas
+
+`document.elementFromPoint()` sobre cualquier ficha devuelve **`CANVAS`**. Hay un
+canvas de pantalla completa (1040×747 CSS, `pointer-events: auto`) por encima del DOM.
+
+Consecuencias:
+
+1. Los nodos DOM son un esqueleto: sirven para leer texto, pero **no** para pulsar.
+2. Los eventos llegan al canvas con `target` vacío; la app hace su propio *hit-test*.
+3. `element.click()`, `dispatchEvent` y `locator.click()` sobre fichas **no cambian
+   el estado** (el evento se entrega, pero en el nodo equivocado del hit-test).
+
+### Lo que sí funciona: clic por coordenadas
+
+```
+page.mouse.click(cssX, cssY)
+```
+
+Probado: clic en `(365, 600)` colocó la palabra «white» sobre la imagen «blanco»,
+la marcó en verde y la app avanzó a la siguiente palabra.
+
+### Cómo obtener las coordenadas correctas
+
+- `page.screenshot()` devuelve la imagen a **device pixels** (viewport × DPR). Con
+  DPR 2 y viewport 1040×747, la imagen sale 2080×1494.
+- Coordenada CSS = `pixel_imagen / DPR`.
+- Para localizar la ficha: mirar la captura (posición visual) y convertir, o usar
+  los rectángulos del DOM **solo como pista** y verificar con una captura posterior.
+
+### Regla de oro
+
+Después de cada clic, captura y compara. Si la pantalla no cambió, la coordenada
+está mal: no insistas, recalcula.
+
 
 ### Emparejar (`D`, `W1b`) — resuelto
 
